@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package bank.operations.api;
+
+option java_outer_classname = "BankOperationsApi";
+
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+message Account{
+  string accNo = 1 [(kalix.field).entity_key = true];
+  string uid = 2;
+  string name = 3;
+  string address = 4;
+  string city = 5;
+  string state = 6;
+  int64 creationDate = 7;
+}
+
+message AccountInfo{
+  string acc_no = 1;
+  double totalAmount = 2;
+  AccountDetails accountDetails = 3;
+  repeated Transaction transactions = 4;
+}
+
+message AccountDetails{
+  string uid = 1;
+  string name = 2;
+  string address = 3;
+  string city = 4;
+  string state = 5;
+  int64 created_dtm = 6;
+}
+
+message Transactions{
+  repeated Transaction transactions = 1;
+}
+
+message Transaction{
+  string id = 1;
+  string recipientName = 2;
+  OperationType operation = 3;
+  double amount = 4;
+  int64 created_dtm = 5;
+  double totalAmount = 6;
+}
+
+enum OperationType{
+  CREDITED = 0;
+  DEBITED = 1;
+  JOINING_BONUS = 2;
+}
+
+message AccountCreationResponse{
+  enum IsAccountCreated{
+    CREATION_SUCCEED = 0;
+    CREATION_FAILED = 1;
+    ACCOUNT_EXIST = 2;
+  }
+  IsAccountCreated isAccountCreated = 2;
+  string reply = 3;
+}
+
+message AccountCreditRequest{
+  string accNo = 1 [(kalix.field).entity_key = true];
+  string recipientName = 2;
+  double amount = 3;
+}
+
+message AccountDebitRequest{
+  string accNo = 1 [(kalix.field).entity_key = true];
+  string recipientName = 2;
+  double amount = 3;
+}
+
+message AccountInformationRequest{
+  string accNo = 1 [(kalix.field).entity_key = true];
+}
+
+message AccountTransactionStatus{
+  string accNo = 1;
+  OperationType operationType = 2;
+  double amount = 3;
+}
+
+service BankOperationsService {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "bank.operations.domain.BankOperations"
+      entity_type: "bank-operation"
+      state: "bank.operations.domain.AccountState"
+      events: [
+        "bank.operations.domain.AccountCreated",
+        "bank.operations.domain.AccountCredited",
+        "bank.operations.domain.AccountDebited"
+      ]
+    }
+  };
+
+  rpc createAccount(Account) returns (AccountCreationResponse) {}
+
+  rpc creditAccount(AccountCreditRequest) returns (AccountTransactionStatus) {
+    option (google.api.http) = {
+      post: "/account/credit"
+      body: "*"
+    };
+  }
+
+  rpc debitAccount(AccountDebitRequest) returns (AccountTransactionStatus) {
+    option (google.api.http) = {
+      post: "/account/debit"
+      body: "*"
+    };
+  }
+
+  rpc getAccountInformation(AccountInformationRequest) returns (AccountInfo) {
+    option (google.api.http) = {
+      get: "/account/{accNo}"
+      additional_bindings: {
+        get: "/account/{accNo}/statement"
+        response_body: "transactions"
+      }
+      additional_bindings:{
+        get: "/account/{accNo}/balance"
+        response_body: "totalAmount"
+      }
+      additional_bindings:{
+        get: "/account/{accNo}/details"
+        response_body: "accountDetails"
+      }
+    };
+  }
+}

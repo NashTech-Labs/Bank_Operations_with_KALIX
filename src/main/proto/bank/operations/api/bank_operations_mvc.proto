@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package bank.operations.api;
+
+option java_outer_classname = "BankOperationsApiMVC";
+
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+
+message AccountCreationRequest{
+  string uid = 1;
+  string name = 2;
+  string address = 3;
+  string city = 4;
+  string state = 5;
+}
+
+message AccountNo{
+  string accNo = 1;
+}
+
+
+service BankOperationsMVCService {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc createAccountRequest(AccountCreationRequest) returns (AccountNo){
+    option (google.api.http) = {
+      post: "/account/creationRequest"
+      body: "*"
+    };
+  }
+
+}

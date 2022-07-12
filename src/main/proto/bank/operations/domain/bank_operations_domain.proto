@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package bank.operations.domain;
+
+option java_outer_classname = "BankOperationsDomain";
+
+
+message AccountState{
+  string acc_no = 1;
+  double totalAmount = 2;
+  AccountDetails accountDetails = 3;
+  repeated Transaction transactions = 4;
+}
+
+message Transaction{
+  string id = 2;
+  string recipientName = 3;
+  OperationType operation = 4;
+  double amount = 5;
+  int64 created_dtm = 6;
+  double totalAmount = 7;
+
+  enum OperationType{
+    CREDITED = 0;
+    DEBITED = 1;
+    JOINING_BONUS = 2;
+  }
+}
+
+message AccountDetails{
+  string uid = 1;
+  string name = 2;
+  string address = 3;
+  string city = 4;
+  string state = 5;
+  int64 created_dtm = 6;
+}
+
+message AccountCreated{
+  string accNo = 1;
+  string uid = 2;
+  string name = 3;
+  string address = 4;
+  string city = 5;
+  string state = 6;
+  int64 created_dtm = 7;
+}
+
+message AccountCredited{
+  string transactionId = 1;
+  string recipientName = 2;
+  double amount = 3;
+  int64 createdDtm = 4;
+}
+
+message AccountDebited{
+  string transactionId = 1;
+  string recipientName = 2;
+  double amount = 3;
+  int64 createdDtm = 4;
+}
