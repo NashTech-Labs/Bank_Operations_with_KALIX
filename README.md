@@ -143,6 +143,7 @@ As response you will get whole account information with all the transaction:
         {
             "id": "294b3730-12b7-4a97-9a30-777533cc214b",
             "recipientName": "Rudra",
+            "operation": "CREDITED",
             "amount": 500.0,
             "createdDtm": 1.65779351306E12,
             "totalAmount": 1100.0
@@ -204,6 +205,7 @@ As response you will get all transactions as a list:
     {
         "id": "281804d5-f5a8-43e0-990a-d2dcaa56f467",
         "recipientName": "Rudra",
+        "operation": "CREDITED",
         "amount": 500.0,
         "createdDtm": 1.657793498593E12,
         "totalAmount": 600.0
@@ -211,6 +213,7 @@ As response you will get all transactions as a list:
     {
         "id": "294b3730-12b7-4a97-9a30-777533cc214b",
         "recipientName": "Rudra",
+        "operation": "CREDITED",
         "amount": 500.0,
         "createdDtm": 1.65779351306E12,
         "totalAmount": 1100.0
