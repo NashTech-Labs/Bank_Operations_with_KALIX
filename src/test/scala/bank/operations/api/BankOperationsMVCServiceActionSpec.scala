@@ -1,8 +1,13 @@
 package bank.operations.api
 
-import org.scalamock.clazz.MockImpl.stub
+import bank.operations.api.AccountCreationResponse.IsAccountCreated
+import kalix.scalasdk.testkit.MockRegistry
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -11,25 +16,67 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class BankOperationsMVCServiceActionSpec
     extends AnyWordSpec
-    with Matchers {
+    with Matchers
+    with MockFactory{
 
-  "BankOperationsMVCServiceAction" must {
+  "BankOperationsMVCServiceAction" should {
 
-    "have example test that can be removed" in {
+    "create an account and return an account number" in {
 
-      val service = BankOperationsMVCServiceActionTestKit(new BankOperationsMVCServiceAction(_))
-      pending
-      // use the testkit to execute a command
-      // and verify final updated state:
-      // val result = service.someOperation(SomeRequest)
-      // verify the reply
-      // result.reply shouldBe expectedReply
+      val mockBankOperationsService = stub[BankOperationsService]
+
+      val accountCreationResponse = AccountCreationResponse(
+        isAccountCreated = IsAccountCreated.CREATION_SUCCEED,
+        reply = "Congratulations! Account is created and joining bonus is added to your account"
+      )
+
+      (mockBankOperationsService.createAccount _)
+        .when(*)
+        .returns(Future.successful(accountCreationResponse))
+
+      val mockRegistry = MockRegistry.withMock(mockBankOperationsService)
+
+      val service = BankOperationsMVCServiceActionTestKit(new BankOperationsMVCServiceAction(_), mockRegistry)
+
+      val accountCreationRequest = AccountCreationRequest(
+        uid = "1234567890",
+        name = "Yash Gupta",
+        address = "RandomAddress",
+        city = "RandomCity",
+        state = "RandomState"
+      )
+
+      val result = service.createAccountRequest(accountCreationRequest).asyncResult
+
+      result.map{
+        res =>
+          res.reply.accNo.isEmpty shouldBe false
+      }
     }
 
-    "handle command createAccountRequest" in {
-      val service = BankOperationsMVCServiceActionTestKit(new BankOperationsMVCServiceAction(_))
-          pending
-      // val result = service.createAccountRequest(AccountCreationRequest(...))
+    "not create an account, throw an error due to an empty UID" in {
+
+      val mockBankOperationsService = stub[BankOperationsService]
+
+      (mockBankOperationsService.createAccount _)
+        .when(*)
+        .returns(Future.successful(AccountCreationResponse.defaultInstance))
+
+      val mockRegistry = MockRegistry.withMock(mockBankOperationsService)
+
+      val service = BankOperationsMVCServiceActionTestKit(new BankOperationsMVCServiceAction(_), mockRegistry)
+
+      val accountCreationRequest = AccountCreationRequest(
+        uid = "",
+        name = "Yash Gupta",
+        address = "RandomAddress",
+        city = "RandomCity",
+        state = "RandomState"
+      )
+
+      val result = service.createAccountRequest(accountCreationRequest).isError
+
+      result shouldBe true
     }
 
   }

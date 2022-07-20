@@ -226,9 +226,20 @@ As response you will get all transactions as a list:
 ]
 ```
 
+## Unit Testing
+
+Currently, we are only focusing on the Unit testing.
+</br>There are two classes that contains unit test cases:
+1. BankOperationsMVCServiceActionSpec (Contains unit test cases for cross-component calls)
+2. BankOperationsSpec (Contains unit test cases for the API)
+
+By default, the integration and unit test are both invoked by the `sbt test`.
+but here, we are only focusing on unit test cases,
+So to run only unit tests, run the `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`.
+
+
 ## Package and deploy this project
 
----
 
 To build and publish the container image and then deploy the service, follow these steps:
 
@@ -255,7 +266,6 @@ If this is your first time using Kalix, this will let you register an account,
 
 ## Invoke your service
 
----
 Once the service has started successfully, you can [start a proxy locally](https://docs.kalix.io/services/invoke-service.html#_testing_and_development) to access the service:
 ```aidl
     kalix service proxy <service name> --grpcui
